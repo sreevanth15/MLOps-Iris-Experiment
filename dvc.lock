@@ -1,0 +1,67 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - path: data/iris.csv
+      hash: md5
+      md5: 4d301abed5efe50eccda350cde38e0eb
+      size: 2777
+    - path: src/prepare.py
+      hash: md5
+      md5: 04120da9373c4cb841c6e6ff8da6693c
+      size: 710
+    params:
+      params.yaml:
+        prepare.random_state: 42
+        prepare.test_size: 0.2
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 12633f6b7b7282fb932761e33b24d21d
+      size: 617
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 47fd89ce6c52daa555a94670836c67a2
+      size: 2237
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 47fd89ce6c52daa555a94670836c67a2
+      size: 2237
+    - path: src/train.py
+      hash: md5
+      md5: 5b3a0bb6cdc8de87a5f10341bb08a29a
+      size: 744
+    params:
+      params.yaml:
+        train.C: 1.0
+        train.max_iter: 500
+        train.random_state: 42
+    outs:
+    - path: models/iris_model.joblib
+      hash: md5
+      md5: 07bb8bad6d7ca19fa061cee477a53f14
+      size: 1889
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 12633f6b7b7282fb932761e33b24d21d
+      size: 617
+    - path: models/iris_model.joblib
+      hash: md5
+      md5: 07bb8bad6d7ca19fa061cee477a53f14
+      size: 1889
+    - path: src/evaluate.py
+      hash: md5
+      md5: 1b6f2b471a9b5122a93ef85f8b9d53f5
+      size: 576
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: 04bd047bad09c1ac99db89436b6c6a61
+      size: 74
