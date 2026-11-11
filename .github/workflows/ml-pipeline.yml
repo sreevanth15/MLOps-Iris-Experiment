@@ -1,0 +1,70 @@
+
+name: MLOps Pipeline with DVC and CML
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  train-and-report:
+    runs-on: ubuntu-latest
+
+    env:
+      GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
+      GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+      REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "dvc[gdrive]" pandas scikit-learn joblib pyyaml
+
+      - name: Configure DVC Google Drive remote
+        run: |
+          dvc remote modify storage url "gdrive://${GDRIVE_FOLDER_ID}"
+          dvc remote modify storage gdrive_use_service_account true
+
+      - name: Pull DVC data
+        run: dvc pull
+
+      - name: Reproduce ML pipeline
+        run: dvc repro
+
+      - name: Create CML metrics report
+        run: |
+          python - <<'PY'
+          import json
+
+          with open("metrics.json") as f:
+              metrics = json.load(f)
+
+          accuracy = metrics["accuracy"]
+          f1 = metrics["f1_score"]
+
+          with open("report.md", "w") as f:
+              f.write("# Iris ML Experiment Report\n\n")
+              f.write("| Metric | Score |\n")
+              f.write("|---|---:|\n")
+              f.write(f"| Accuracy | {accuracy:.4f} |\n")
+              f.write(f"| Macro F1-score | {f1:.4f} |\n")
+              f.write("\nPipeline executed successfully using DVC.\n")
+          PY
+
+      - name: Set up CML
+        uses: iterative/setup-cml@v3
+
+      - name: Post report to pull request
+        run: cml comment create report.md
