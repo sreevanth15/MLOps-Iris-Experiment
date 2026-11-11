@@ -1,4 +1,5 @@
 [core]
     remote = storage
 ['remote "storage"']
-    url = /content/drive/MyDrive/MLOps_DVC_Storage
+    url = gdrive://1xMouj7UO9z7nUomVtdto2NKe3KyT52fI
+    gdrive_use_service_account = true
