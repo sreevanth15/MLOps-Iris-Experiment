@@ -5,4 +5,4 @@ prepare:
 train:
   random_state: 42
   max_iter: 500
-  C: 1.0
+  C: 0.1

@@ -37,13 +37,13 @@ stages:
       size: 744
     params:
       params.yaml:
-        train.C: 1.0
+        train.C: 0.1
         train.max_iter: 500
         train.random_state: 42
     outs:
     - path: models/iris_model.joblib
       hash: md5
-      md5: 07bb8bad6d7ca19fa061cee477a53f14
+      md5: eac2fe07b0949ae2dde16feec009765f
       size: 1889
   evaluate:
     cmd: python src/evaluate.py
@@ -54,7 +54,7 @@ stages:
       size: 617
     - path: models/iris_model.joblib
       hash: md5
-      md5: 07bb8bad6d7ca19fa061cee477a53f14
+      md5: eac2fe07b0949ae2dde16feec009765f
       size: 1889
     - path: src/evaluate.py
       hash: md5
@@ -63,5 +63,5 @@ stages:
     outs:
     - path: metrics.json
       hash: md5
-      md5: 04bd047bad09c1ac99db89436b6c6a61
+      md5: 56eabfa3d7d694538c4a21c84b8d8f12
       size: 74
